@@ -7,9 +7,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -104,17 +108,88 @@ fun CenteredLogo(navController: NavController) {
 
 @Composable
 fun MainScreen() {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+    val nums = arrayListOf(1, 2, 3, 4, 5)
+    val events = arrayListOf("First", "Two", "Three", "Four", "Five")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Green)
     ) {
-        Text("Welcome to MainScreen")
+        Row(modifier = Modifier
+            .background(Color.Red)
+            .fillMaxWidth()
+            .weight(1f)
+        ) {
+            BoxWithConstraints {
+                LazyRow {
+                    itemsIndexed(nums) { index, num ->
+                        Layout(
+                            content = {
+                                YearCard(currentYear = num)
+                            },
+                            measurePolicy = { measurables, constraints ->
+                                val placeable = measurables.first().measure(constraints)
+                                val maxWidthInPx = maxWidth.roundToPx()
+                                val itemWidth = placeable.width
+                                val startSpace =
+                                    if (index == 0) (maxWidthInPx - itemWidth) / 2 else 0
+                                val endSpace =
+                                    if (index == nums.lastIndex) (maxWidthInPx - itemWidth) / 2 else 0
+                                val width = startSpace + placeable.width + endSpace
+                                layout(width, placeable.height) {
+                                    val x = if (index == 0) startSpace else 0
+                                    placeable.place(x, 0)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .background(color = Color.Green)
+                .fillMaxWidth()
+                .weight(2f)
+        ) {
+            LazyColumn {
+                items(events) { event ->
+                    EventCard(event = event)
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun CustomSpinner() {
     CircularProgressIndicator()
+}
+
+@Composable
+fun YearCard(currentYear: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(40.dp)
+            .clickable { },
+        backgroundColor = Color.White
+    ) {
+        Text(currentYear.toString(), modifier = Modifier.padding(50.dp))
+    }
+}
+
+@Composable
+fun EventCard(event: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
+            .clickable { },
+        backgroundColor = Color.White
+    ) {
+        Text(event, modifier = Modifier.padding(50.dp))
+    }
 }
 
 @Composable
