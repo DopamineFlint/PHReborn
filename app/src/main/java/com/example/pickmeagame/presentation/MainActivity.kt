@@ -9,10 +9,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,6 +27,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.pickmeagame.presentation.ui.theme.PickMeAGameTheme
+import dev.chrisbanes.snapper.ExperimentalSnapperApi
+import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -106,10 +105,13 @@ fun CenteredLogo(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalSnapperApi::class)
 @Composable
 fun MainScreen() {
     val nums = arrayListOf(1, 2, 3, 4, 5)
     val events = arrayListOf("First", "Two", "Three", "Four", "Five")
+    val secondEvents = arrayListOf("Three Five Six", "Nine Eleven", "Nine Inch Nails")
+    val lazyListState: LazyListState = rememberLazyListState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,7 +123,10 @@ fun MainScreen() {
             .weight(1f)
         ) {
             BoxWithConstraints {
-                LazyRow {
+                LazyRow(
+                    state = lazyListState,
+                    flingBehavior = rememberSnapperFlingBehavior(lazyListState)
+                ) {
                     itemsIndexed(nums) { index, num ->
                         Layout(
                             content = {
