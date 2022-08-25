@@ -2,6 +2,7 @@ package com.example.pickmeagame.presentation
 
 import android.os.Bundle
 import android.view.animation.OvershootInterpolator
+import android.widget.Toast
 import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.pickmeagame.presentation.ui.theme.PickMeAGameTheme
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
+import dev.chrisbanes.snapper.LazyListSnapperLayoutInfo
+import dev.chrisbanes.snapper.rememberLazyListSnapperLayoutInfo
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 import kotlinx.coroutines.delay
 
@@ -108,15 +112,34 @@ fun CenteredLogo(navController: NavController) {
 @OptIn(ExperimentalSnapperApi::class)
 @Composable
 fun MainScreen() {
+    val context = LocalContext.current
     val nums = arrayListOf(1, 2, 3, 4, 5)
     val events = arrayListOf("First", "Two", "Three", "Four", "Five")
     val secondEvents = arrayListOf("Three Five Six", "Nine Eleven", "Nine Inch Nails")
     val lazyListState: LazyListState = rememberLazyListState()
+    val layoutInfo: LazyListSnapperLayoutInfo = rememberLazyListSnapperLayoutInfo(
+        lazyListState = lazyListState
+    )
+    //var value by remember { mutableStateOf(layoutInfo.currentItem?.index) }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow {
+            lazyListState.isScrollInProgress }.collect {
+            layoutInfo.currentItem?.index?.let { itemIndex ->
+                Toast.makeText(context, "List $itemIndex", Toast.LENGTH_SHORT).show()
+                if (itemIndex == 2) {
+
+                }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Green)
     ) {
+        val cntxt = LocalContext.current
         Row(modifier = Modifier
             .background(Color.Red)
             .fillMaxWidth()
@@ -178,7 +201,7 @@ fun YearCard(currentYear: Int) {
             .fillMaxWidth()
             .padding(40.dp)
             .clickable { },
-        backgroundColor = Color.White
+        backgroundColor = Color.White,
     ) {
         Text(currentYear.toString(), modifier = Modifier.padding(50.dp))
     }
